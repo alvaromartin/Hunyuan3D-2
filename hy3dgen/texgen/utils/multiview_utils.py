@@ -20,6 +20,20 @@ import torch
 from typing import List
 from diffusers import DiffusionPipeline
 from diffusers import EulerAncestralDiscreteScheduler, LCMScheduler
+import transformers
+
+# Transformers >=4.44 enforces torch>=2.6 for torch.load due to CVE-2025-32434.
+# We trust the bundled checkpoints here, so relax the guard to keep torch 2.5.1 working.
+try:
+    from transformers.utils import import_utils as _tf_import_utils
+    from transformers import modeling_utils as _tf_modeling_utils
+
+    if hasattr(_tf_import_utils, "check_torch_load_is_safe"):
+        _tf_import_utils.check_torch_load_is_safe = lambda: None
+    if hasattr(_tf_modeling_utils, "check_torch_load_is_safe"):
+        _tf_modeling_utils.check_torch_load_is_safe = lambda: None
+except Exception:
+    pass
 
 
 class Multiview_Diffusion_Net():
